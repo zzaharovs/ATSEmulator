@@ -1,15 +1,18 @@
 package ru.netology.ats_emulator;
 
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static ru.netology.ats_emulator.App.MAX_CALLS_LIMIT;
 
 public class Support implements Runnable {
 
-    private Queue<Runnable> callsQueue;
-    private int noNewCallsCounter;
-    private static int MAX_COUNT_NO_CALLS_INTERATIION = 3;
-    private static final long WAIT_CALL = 1000;
+    private final Queue<UserCall> callsQueue;
+    private final AtomicInteger atomicCallsCounter;
 
-    public Support(Queue<Runnable> callsQueue) {
+    public Support(Queue<UserCall> callsQueue, AtomicInteger atomicCallsCounter)
+    {
+        this.atomicCallsCounter = atomicCallsCounter;
         this.callsQueue = callsQueue;
     }
 
@@ -18,22 +21,14 @@ public class Support implements Runnable {
 
         while (true) {
 
-            Runnable call = callsQueue.poll();
+            UserCall call = callsQueue.poll();
 
             if (call != null) {
-                call.run();
+                call.doSomething();
                 continue;
             }
-
-            try {
-                noNewCallsCounter++;
-                Thread.sleep(WAIT_CALL);
-            } catch (InterruptedException exception) {
-                continue;
-            }
-
-            if (noNewCallsCounter == MAX_COUNT_NO_CALLS_INTERATIION) {
-                System.out.printf("Звонки не поступали продолжительное время\n" +
+            if (atomicCallsCounter.get() == MAX_CALLS_LIMIT) {
+                System.out.printf("Достигнут лимит на количество звонков\n" +
                         "%s закончил работу\n", Thread.currentThread().getName());
                 break;
             }

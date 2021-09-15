@@ -1,6 +1,6 @@
 package ru.netology.ats_emulator;
 
-public class UserCall implements Runnable{
+public class UserCall{
 
     private static final int WORK_TIME = 3000;
     private final String name;
@@ -11,8 +11,7 @@ public class UserCall implements Runnable{
 
     }
 
-    @Override
-    public void run() {
+    public void doSomething() {
 
         System.out.printf("%s в работе у %s\n", name, Thread.currentThread().getName());
         try {
